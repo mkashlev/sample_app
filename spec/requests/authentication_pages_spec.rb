@@ -9,6 +9,12 @@ describe "Authentication" do
 
     it { should have_selector('h1',    text: 'Sign in') }
     it { should have_selector('title', text: 'Sign in') }
+    
+	it { should_not have_link('Users') }
+	it { should_not have_link('Profile') }
+	it { should_not have_link('Settings') }
+	it { should_not have_link('Sign out', href: signout_path) }
+    
   end
   
   describe "signin" do
@@ -18,7 +24,7 @@ describe "Authentication" do
       before { click_button "Sign in" }
 
       it { should have_selector('title', text: 'Sign in') }
-      it { should have_error_message('Invalid') }
+      it { should have_error_message('Invalid') }      
       
 		describe "after visiting another page" do
 		  before { click_link "Home" }
@@ -119,6 +125,17 @@ describe "Authentication" do
         before { delete user_path(user) }
         specify { response.should redirect_to(root_path) }        
       end
+    end
+    
+    describe "as admin user" do
+      let(:admin_user) { FactoryGirl.create(:admin) }
+      before { sign_in admin_user }
+      
+      describe "Admin attempting to delete himself" do
+        before { delete user_path(admin_user) }
+        specify { response.should redirect_to(root_path) }
+      end
+      
     end
 
     
